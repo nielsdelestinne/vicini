@@ -58,6 +58,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Output artifact ID
+        run: echo "Artifact ID from previous job is ${{ needs.build.outputs.output1 }}"
 
       - name: Download artifact
         uses: actions/download-artifact@v3
