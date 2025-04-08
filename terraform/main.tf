@@ -3,15 +3,10 @@ provider "azurerm" {
   subscription_id = "e4430928-3be8-4ca2-970c-3d5a0e994047"
 }
 
-resource "azurerm_resource_group" "vicini" {
-  name     = "rg_nielsd"
-  location = var.location
-}
-
 resource "azurerm_app_service_plan" "vicini" {
   name                = "vicini-appserviceplan"
-  location            = azurerm_resource_group.vicini.location
-  resource_group_name = azurerm_resource_group.vicini.name
+  location            = "west-eu"
+  resource_group_name = "rg_nielsd"
   kind                = "Linux"
   reserved            = true
 
@@ -23,8 +18,8 @@ resource "azurerm_app_service_plan" "vicini" {
 
 resource "azurerm_app_service" "vicini" {
   name                = "vicini-app"
-  location            = azurerm_resource_group.vicini.location
-  resource_group_name = azurerm_resource_group.vicini.name
+  location            = "west-eu"
+  resource_group_name = "rg_nielsd"
   app_service_plan_id = azurerm_app_service_plan.vicini.id
 
   site_config {
