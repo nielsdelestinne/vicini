@@ -1,5 +1,6 @@
 provider "azurerm" {
   features {}
+  subscription_id = "e4430928-3be8-4ca2-970c-3d5a0e994047"
 }
 
 resource "azurerm_resource_group" "vicini" {
