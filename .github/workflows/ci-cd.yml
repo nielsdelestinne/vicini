@@ -2,87 +2,87 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
 
-    - name: Install dependencies
-      run: npm run install:all
+      - name: Install dependencies
+        run: npm run install:all
 
-    - name: Build frontend
-      run: npm run build:frontend
+      - name: Build frontend
+        run: npm run build:frontend
 
-    - name: Build backend
-      run: npm run build:backend
+      - name: Build backend
+        run: npm run build:backend
 
-    - name: Run tests
-      run: |
-        cd backend
-        npm test
+      - name: Run tests
+        run: |
+          cd backend
+          npm test
 
-    - name: Create deployment package
-      run: |
-        mkdir -p deployment
-        cp -r backend/dist deployment/
-        cp -r backend/package.json deployment/
-        cp -r frontend/dist/vicini-frontend deployment/public
-        cd deployment && npm install --production
-        cd .. && zip -r deployment.zip deployment
+      - name: Create deployment package
+        run: |
+          mkdir -p deployment
+          cp -r backend/dist deployment/
+          cp -r backend/package.json deployment/
+          cp -r frontend/dist/vicini-frontend deployment/public
+          cd deployment && npm install --production
+          cd .. && zip -r deployment.zip deployment
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: deployment-package
-        path: deployment.zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-package
+          path: deployment.zip
 
   deploy:
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Download artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: deployment-package
-    
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.0.0
-    
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    - name: Terraform Init
-      run: |
-        cd terraform
-        terraform init
-    
-    - name: Terraform Apply
-      run: |
-        cd terraform
-        terraform apply -auto-approve
-    
-    - name: Deploy to Azure App Service
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'vicini-app'
-        package: 'deployment.zip'
+      - uses: actions/checkout@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: deployment-package
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init
+
+      - name: Terraform Apply
+        run: |
+          cd terraform
+          terraform apply -auto-approve
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "vicini-app"
+          package: "deployment.zip"
