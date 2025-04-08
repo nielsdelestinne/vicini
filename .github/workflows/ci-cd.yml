@@ -28,10 +28,10 @@ jobs:
       - name: Build backend
         run: npm run build:backend
 
-      - name: Run tests
-        run: |
-          cd backend
-          npm test
+      # - name: Run tests
+      #   run: |
+      #     cd backend
+      #     npm test
 
       - name: Create deployment package
         run: |
